@@ -7,14 +7,21 @@
 # Output: country asn org
 #
 
+#This is needed for Splunk to use 64bit Python Modules, ie maxminddb.  You also need to install the python for scientific computing for linux 64bit app from Splunkbase.  You need to copy over exec_anaconda.py from the app you install
+
+import exec_anaconda
+exec_anaconda.exec_anaconda()
+
 import csv
 import os
 import sys
 
+#you need to copy over the geoip2, ipaddress, and maxmind python modules to the Splunk python install
 import geoip2.database
 
+#I'm certain there is a better way to do this, but it can't be relative.  I think there is a splunk variable that may be used here instead.
 def db_path(dataset):
-    return "{0}/../data/GeoLite2-{1}.mmdb".format(
+    return "/opt/splunk/etc/apps/GeoASN2/data/GeoLite2-{1}.mmdb".format(
     os.path.dirname(sys.argv[0]), dataset)
 
 
