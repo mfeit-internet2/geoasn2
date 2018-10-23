@@ -1,0 +1,61 @@
+#!/usr/bin/python
+#
+# GeoIP2 Country/ASN/Organization lookup for Splunk
+#
+#
+# Input: clientip
+# Output: client_country client_region client_city client_lat client_lon
+#
+
+import csv
+import os
+import sys
+
+import geoip2.database
+
+def db_path(dataset):
+    return "{0}/../data/GeoLite2-{1}.mmdb".format(
+    os.path.dirname(sys.argv[0]), dataset)
+
+city_db = geoip2.database.Reader(db_path("City"))
+
+csv_in = csv.reader(sys.stdin)
+csv_out = csv.writer(sys.stdout)
+
+# The first line is always the header.  Pick it apart and figure out
+# where the fields we want live.
+
+header = csv_in.next()
+field_index = dict((name, pos) for pos, name in enumerate(header))
+
+index_ip = field_index["clientip"]
+index_country = field_index["client_country"]
+index_region = field_index["client_region"]
+index_city = field_index["client_city"]
+index_lat = field_index["client_lat"]
+index_lon = field_index["client_lon"]
+
+
+# Write the file, header line first.
+
+csv_out.writerow(header)
+
+for line in csv_in:
+
+    try:
+
+        ip = line[index_ip]
+
+        city_response = city_db.city(ip)
+
+        line[index_country] = city_response.country.iso_code
+        line[index_city] = city_response.city.names["en"].encode("ascii", "replace") #pylint: disable=no-member
+        line[index_lat] = city_response.location.latitude    #pylint: disable=no-member
+        line[index_lon] = city_response.location.longitude   #pylint: disable=no-member
+
+    except (KeyError, IndexError, geoip2.errors.AddressNotFoundError):
+        # Not there, don't care.
+        pass
+
+    # Write the row back no matter how it turned out.
+    csv_out.writerow(line)
