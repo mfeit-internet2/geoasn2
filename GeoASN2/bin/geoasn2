@@ -57,7 +57,10 @@ for line in csv_in:
         asn = asn_response.autonomous_system_number
         line[index_src_as] = "AS{0}".format(asn)
         line[index_src_asn] = asn
-        line[index_src_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        try:
+            line[index_src_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        except AttributeError:
+            pass
 
         country_response = country_db.country(src_ip)
         line[index_src_country] = country_response.country.iso_code
@@ -68,7 +71,10 @@ for line in csv_in:
         asn = asn_response.autonomous_system_number
         line[index_dest_as] = "AS{0}".format(asn)
         line[index_dest_asn] = asn
-        line[index_dest_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        try:
+            line[index_dest_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        except AttributeError:
+            pass
 
         country_response = country_db.country(dest_ip)
         line[index_dest_country] = country_response.country.iso_code

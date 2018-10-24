@@ -49,7 +49,10 @@ for line in csv_in:
         city_response = city_db.city(ip)
 
         line[index_country] = city_response.country.iso_code
-        line[index_city] = city_response.city.names["en"].encode("ascii", "replace") #pylint: disable=no-member
+        try:
+            line[index_city] = city_response.city.names["en"].encode("ascii", "replace") #pylint: disable=no-member
+        except AttributeError:
+            pass
         line[index_lat] = city_response.location.latitude    #pylint: disable=no-member
         line[index_lon] = city_response.location.longitude   #pylint: disable=no-member
 

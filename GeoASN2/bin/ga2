@@ -50,7 +50,10 @@ for line in csv_in:
 
         asn_response = asn_db.asn(ip)
         line[index_asn] = asn_response.autonomous_system_number
-        line[index_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        try:
+            line[index_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+        except AttributeError:
+            pass
 
     except (KeyError, geoip2.errors.AddressNotFoundError):
         # Not there, don't care.
