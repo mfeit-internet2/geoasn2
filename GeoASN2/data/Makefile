@@ -16,11 +16,8 @@ TARBALLS:= $(DATA_SETS:%=$(NAME)-%.tar.gz)
 default: build
 
 %.tar.gz:
-	rm -f $@.download
-	curl -s -o $@.download $(URL_BASE)/$@
-	mv -f $@.download $@
-TO_CLEAN += $(TARBALLS:%=%.download)
-TO_DISTCLEAN += $(TARBALLS)
+	./fetch "$(URL_BASE)/$@" .
+TO_CLEAN += $(TARBALLS)
 
 $(NAME)-%: $(NAME)-%.tar.gz
 	mkdir -p $@
@@ -33,7 +30,7 @@ TO_CLEAN += $(DATA_DIRS) $(DATA_DIRS)_*
 build: $(DATA_DIRS)
 	for DB in $(DATA_SETS) ; \
 	do \
-		rm -f "$${DB}.mmdb" ; \
+		rm -f "$(NAME)-$${DB}.mmdb" ; \
 		ln -s "$(NAME)-$${DB}/$(NAME)-$${DB}.mmdb" . ; \
 	done
 TO_CLEAN += $(DATA_SETS:%=$(NAME)-%.mmdb)
@@ -41,6 +38,3 @@ TO_CLEAN += $(DATA_SETS:%=$(NAME)-%.mmdb)
 
 clean:
 	rm -rf $(TO_CLEAN) *~
-
-distclean: clean
-	rm -rf $(TO_DISTCLEAN)

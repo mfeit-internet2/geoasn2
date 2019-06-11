@@ -1,0 +1,45 @@
+#!/bin/sh -e
+#
+# Fetch a URL ($1) into a directory ($2) if the file doesn't exist or
+# if a HEAD query says the remote version is newer.
+#
+
+URL="$1"
+DIR="$2"
+FILE="${DIR}/$(basename "${URL}")"
+
+if [ -e "${FILE}" ]
+then
+    FILE_MOD_TIME=$(stat -c '%Y' "${FILE}")
+
+    URL_MOD_TIME_RAW=$(curl -s -I "${URL}" \
+	| awk -F': ' '$1 == "Last-Modified" { print $2 }')
+
+    URL_MOD_TIME=$(date -d "${URL_MOD_TIME_RAW}" '+%s')
+
+    # If remote's not newer, we don't care.
+    [ "${URL_MOD_TIME}" -le "${FILE_MOD_TIME}" ] && exit 0
+fi
+
+DOWNLOAD="${FILE}.download.$$"
+
+cleanup()
+{
+    rm -f "${DOWNLOAD}"
+}
+trap cleanup EXIT
+
+STATUS=$(curl \
+    --silent \
+    --location \
+    --write-out "%{http_code}" \
+    --output "${DOWNLOAD}" \
+    "${URL}")
+
+if [ "${STATUS}" -ne 200 ]
+then
+    echo "Fetch failed: ${STATUS}" 1>&2
+    exit 1
+fi
+
+mv -f "${DOWNLOAD}" "${FILE}"
