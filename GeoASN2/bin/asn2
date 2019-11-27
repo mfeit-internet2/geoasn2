@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # GeoIP2 ASN lookup for Splunk
 #
@@ -28,14 +28,14 @@ csv_out = csv.writer(sys.stdout)
 # The first line is always the header.  Read that and generate tuples
 # for source and destination IP and ASN.
 
-header = csv_in.next()
+header = next(csv_in)
 field_index = dict((name, pos) for pos, name in enumerate(header))
 
 pairs = []
 for pair in [ "src", "dest" ]:
     try:
         pairs.append( tuple([
-            field_index[pair + item] for item in "_ip", "_asn"
+            field_index[pair + item] for item in ("_ip", "_asn")
         ]) )
     except KeyError:
         # TODO: Burp out an error or die?

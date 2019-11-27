@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # GeoIP2 Country/ASN/Organization lookup for Splunk
 #
@@ -27,7 +27,7 @@ csv_out = csv.writer(sys.stdout)
 # The first line is always the header.  Pick it apart and figure out
 # where the fields we want live.
 
-header = csv_in.next()
+header = next(csv_in)
 field_index = dict((name, pos) for pos, name in enumerate(header))
 
 index_ip = field_index["ip"]

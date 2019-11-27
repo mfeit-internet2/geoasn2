@@ -20,8 +20,8 @@ The following commands are provided
 Your system must have the following installed prior to installing this
 add-on:
 
- * Python version 2.6 or later.  (These programs should run under Python 3 as well but have not been tested.)
- * The GeoIP2 API for Python and all of its prerequisites.  On Linux distributions derived from Red Hat, this is available in the EPEL repo as python2-geoip2.
+ * Python version 3.6 or later.
+ * The GeoIP2 API for Python and all of its prerequisites.  On Linux distributions derived from Red Hat, this is available in the EPEL repo as python-geoip2.
 
 ## Setup
 
