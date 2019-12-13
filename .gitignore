@@ -1,0 +1,8 @@
+# Things to ignore
+
+# Python detritus
+__pycache__
+
+
+# Misc.
+*~
