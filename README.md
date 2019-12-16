@@ -45,10 +45,11 @@ will continue to completion.
 
 ## Testing the programs
 
-You can 
-
-  cd $SPLUNK_HOME/etc/apps/GeoASN/bin
-  $SPLUNK_HOME/bin/splunk cmd python ga.py < ga.csv 
+You can
+```
+cd $SPLUNK_HOME/etc/apps/GeoASN/bin
+$SPLUNK_HOME/bin/splunk cmd python ga.py < ga.csv 
+```
 
 If it works, it should output something along these lines:
 
@@ -57,6 +58,9 @@ ip,country,asn,org
 203.129.108.100,Japan,10000,Nagasaki Cable Media Inc.
 
 You are now ready to start using the GeoASN lookup commands!
+
+(Note that this already happens as part of the setup process described
+above.)
   
 
 ## Example Searches
