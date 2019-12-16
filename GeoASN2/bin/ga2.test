@@ -1,1 +1,10 @@
-# Dummy file.
+ip,country,asn,org
+200.148.108.124,BR,27699,b'TELEF?NICA BRASIL S.A'
+203.129.108.100,JP,10000,b'Nagasaki Cable Media Inc.'
+192.168.10.10,,,
+10.10.20.20,,,
+172.10.20.30,US,7018,"b'AT&T Services, Inc.'"
+172.19.20.21,,,
+172.32.1.1,US,21928,"b'T-Mobile USA, Inc.'"
+172.31.1.1,,,
+172.33.1.1,US,21928,"b'T-Mobile USA, Inc.'"

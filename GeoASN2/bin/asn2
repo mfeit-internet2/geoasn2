@@ -11,6 +11,9 @@ import csv
 import os
 import sys
 
+with open('python-dir', 'r') as dirfile:
+    sys.path.append(dirfile.read().strip())
+
 import geoip2.database
 
 DATA_SET = "ASN"
@@ -21,6 +24,7 @@ DB_PATH = "{0}/../data/GeoLite2-{1}.mmdb".format(
     )
 
 db = geoip2.database.Reader(DB_PATH)
+
 
 csv_in = csv.reader(sys.stdin)
 csv_out = csv.writer(sys.stdout)
@@ -59,3 +63,4 @@ for line in csv_in:
 
     # Write the row back no matter how it turned out.
     csv_out.writerow(line)
+

@@ -11,6 +11,9 @@ import csv
 import os
 import sys
 
+with open('python-dir', 'r') as dirfile:
+    sys.path.append(dirfile.read().strip())
+
 import geoip2.database
 
 def db_path(dataset):

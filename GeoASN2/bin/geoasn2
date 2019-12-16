@@ -11,6 +11,9 @@ import csv
 import os
 import sys
 
+with open('python-dir', 'r') as dirfile:
+    sys.path.append(dirfile.read().strip())
+
 import geoip2.database
 
 def db_path(dataset):
@@ -51,7 +54,7 @@ for line in csv_in:
 
     try:
 
-	src_ip = line[index_src_ip]
+        src_ip = line[index_src_ip]
 
         asn_response = asn_db.asn(src_ip)
         asn = asn_response.autonomous_system_number
@@ -65,7 +68,7 @@ for line in csv_in:
         country_response = country_db.country(src_ip)
         line[index_src_country] = country_response.country.iso_code
 
-	dest_ip = line[index_dest_ip]
+        dest_ip = line[index_dest_ip]
 
         asn_response = asn_db.asn(dest_ip)
         asn = asn_response.autonomous_system_number

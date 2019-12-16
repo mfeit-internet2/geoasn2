@@ -1,1 +1,10 @@
-# Dummy file.
+clientip,client_country,client_region,client_city,client_lat,client_lon
+200.148.108.124,BR,,b'S?o Paulo',-23.63,-46.6322
+203.129.108.100,JP,,b'Nagasaki',32.75,129.8833
+192.168.10.10,,,,,
+10.10.20.20,,,,,
+172.10.20.30,US,,b'Blythewood',34.1911,-80.9758
+172.19.20.21,,,,,
+172.32.1.1,US,,,,
+172.31.1.1,,,
+172.33.1.1,US,,

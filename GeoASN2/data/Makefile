@@ -38,3 +38,6 @@ TO_CLEAN += $(DATA_SETS:%=$(NAME)-%.mmdb)
 
 clean:
 	rm -rf $(TO_CLEAN) *~
+
+
+update: clean build

@@ -1,1 +1,6 @@
-# Dummy file.
+src_ip,dest_ip,src_country,dest_country,src_asn,src_as,src_org,dest_asn,dest_as,dest_org
+10.10.10.10,200.148.108.124,,,,,,,,
+192.168.1.2,203.129.108.100,,,,,,,,
+10.10.20.20,172.10.20.30,,,,,,,,
+172.19.20.21,172.32.1.1,,,,,,,,
+128.82.4.1,198.6.1.1,US,US,1201,AS1201,b'Old Dominion University',701,AS701,"b'MCI Communications Services, Inc. d/b/a Verizon Business'"

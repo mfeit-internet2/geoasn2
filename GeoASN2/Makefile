@@ -18,6 +18,9 @@ defaultt:
 		$(MAKE) -C "$$DIR"; \
 	done
 
+update:
+	$(MAKE) -C data update
+
 clean:
 	set -e ; \
 	for DIR in $(SUBDIRS); do \

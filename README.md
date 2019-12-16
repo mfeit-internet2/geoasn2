@@ -15,23 +15,32 @@ The following commands are provided
 | geo2          | clientip       | client_country client_region client_city client_lat client_lon |
 | geoasn2       | src_ip dest_ip | src_country dest_country src_asn src_as src_org dest_asn dest_as dest_org |
 
+
 ## Installation
 
-Your system must have the following installed prior to installing this
-add-on:
+Prior to installation, your system must have the following installed:
 
- * Python version 3.6 or later.
- * The GeoIP2 API for Python and all of its prerequisites.  On Linux distributions derived from Red Hat, this is available in the EPEL repo as python-geoip2.
+ * Python version 3.6 or later
+ * PIP for Python 3
+
 
 ## Setup
 
 Copy the GeoASN2 directory into `$SPLUNK_HOME/etc/apps`.
 
-In the copy, change into the `data` directory and run `make clean
-build`.  This will download the latest data from MAXMIND and make it
-ready for use.  This process can be repeated to update the data.
+In the copy, run `make`.  This will install a local copy of the
+required Python modules, set up the scripts, download the latest data
+from MAXMIND and make everything ready for use.
 
 Restart Splunk.
+
+**Note to VirtualBox users:** If this process is being carried out on
+a filesystem shared from the host, `pip` lock up waiting to create a
+hard link as a lock file during the cleanup process.  VirtualBox
+shared filesystems do not support hard linking.  If you run into this
+situation, break out of the `make`, run `make` again and the process
+will continue to completion.
+
 
 
 ## Testing the programs
