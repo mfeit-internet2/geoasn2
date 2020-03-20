@@ -41,9 +41,8 @@ Copy the GeoASN2 directory into `$SPLUNK_HOME/etc/apps`.
 In the copy, create a file in the `etc` directory called
 `maxmind-license` containing your license key.
 
-In the copy, change into the `data` directory and run `make clean
-build`.  This will download the latest data from MAXMIND and make it
-ready for use.  This process can be repeated to update the data.
+In the top-level directory of the copy, run `make` to set up the
+add-on and update the data.
 
 Optionally, test the programs using the procedure below.
 
