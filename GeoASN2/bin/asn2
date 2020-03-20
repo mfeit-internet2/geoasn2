@@ -15,10 +15,11 @@ import geoip2.database
 
 DATA_SET = "ASN"
 
-DB_PATH = "{0}/../data/GeoLite2-{1}.mmdb".format(
-    os.path.dirname(sys.argv[0]),
-    DATA_SET
-    )
+def db_path(dataset):
+    return "{0}/../data/maxmind/GeoLite2-{1}.mmdb".format(
+    os.path.dirname(sys.argv[0]), dataset)
+
+DB_PATH = db_path(DATA_SET)
 
 db = geoip2.database.Reader(DB_PATH)
 

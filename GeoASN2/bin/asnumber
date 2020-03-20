@@ -1,0 +1,91 @@
+#!/usr/bin/python
+#
+# GeoIP2 ASN lookup for Splunk
+#
+#
+# Input:  asn
+# Output: rir country org
+#
+
+import csv
+import os
+import sqlite3
+import sys
+
+# Splunk makes this directory the CWD before calling the script.
+DB_PATH = "{0}/../data/rir/asnumber.sqlite".format(os.path.dirname(sys.argv[0]) or ".")
+
+db = sqlite3.connect(DB_PATH)
+db.text_factory = bytes
+
+cursor = db.cursor()
+
+csv_in = csv.reader(sys.stdin)
+csv_out = csv.writer(sys.stdout)
+
+
+# The first line is always the header.  Pick it apart and figure out
+# where the fields we want live.
+
+header = csv_in.next()
+field_index = dict((name, pos) for pos, name in enumerate(header))
+
+index_asn = field_index["asn"]
+index_rir = field_index["rir"]
+index_country = field_index["country"]
+index_org = field_index["org"]
+
+
+# Per RFC 6996
+private_asns = [
+	     (64512, 65534),
+	     (4200000000,4294967294)
+	     ]
+
+def asn_is_private(asn):
+    asn = int(asn)
+    for asrange in private_asns:
+        (lower, upper) = asrange
+        if asn >= lower and asn <= upper:
+            return True
+    return False
+
+
+
+# Write the file, header line first.
+
+csv_out.writerow(header)
+
+for line in csv_in:
+
+    try:
+
+        asn = line[index_asn]
+
+        if asn_is_private(asn):
+            line[index_rir] = "iana"
+            line[index_org] = "Private AS%s" % (asn)
+
+        else:
+
+            cursor.execute(
+                "SELECT rir, country, org FROM asinfo WHERE asn = ?",
+                (asn,)
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                # Skip it.  Didn't find anything
+                raise IndexError
+
+            line[index_rir] = row[0]
+            line[index_country] = row[1]
+            line[index_org] = row[2]
+
+    except IndexError:
+        # Not there, don't care.
+        pass
+
+    # Write the row back no matter how it turned out.
+    csv_out.writerow(line)

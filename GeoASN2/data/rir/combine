@@ -1,0 +1,38 @@
+#!/usr/bin/python
+#
+# RIR/MaxMind Data Combiner
+# Input:  ip
+# Output: country asn org
+#
+
+import csv
+import os
+import sys
+
+import geoip2.database
+
+
+asn_in = csv.reader(open(sys.argv[1]), delimiter='|')
+rir_in = csv.reader(open(sys.argv[2]), delimiter='|')
+out = csv.writer(sys.stdout, delimiter="|")
+
+asn_org = {}
+
+for line in asn_in:
+    asn_org[line[0]] = line[1]
+
+for line in rir_in:
+
+    (asn, rir, country) = line
+    line.append(asn_org.get(asn, "AS%s" % (asn)))
+    try:
+        del asn_org[asn]
+    except KeyError:
+        pass
+
+    out.writerow(line)
+
+# Anything left in asn_org was missing RIR data
+
+for orphan in asn_org:
+    print "%s|||%s" % (orphan, asn_org[orphan])

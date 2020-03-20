@@ -1,12 +1,31 @@
 #!/bin/sh -e
 #
-# Fetch a URL ($1) into a directory ($2) if the file doesn't exist or
-# if a HEAD query says the remote version is newer.
+# Fetch a Maxmind database tarball ($1) into a directory ($2) if the
+# file doesn't exist or if a HEAD query says the remote version is
+# newer.
 #
 
-URL="$1"
+TARBALL="$1"
 DIR="$2"
-FILE="${DIR}/$(basename "${URL}")"
+FILE="${DIR}/${TARBALL}"
+
+WHEREAMI=$(dirname "$0")
+
+SUFFIX=".tar.gz"
+EDITION=$(echo "${TARBALL}" | sed -e "s/${SUFFIX}\$//")
+
+
+KEYFILE="${WHEREAMI}/../../etc/maxmind-key"
+if [ ! -r "${KEYFILE}" ]
+then
+    echo "No license key file '${KEYFILE}' present."
+    exit 1
+fi
+KEY=$(cat "${KEYFILE}")
+
+
+URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&suffix=tar.gz&license_key=${KEY}"
+
 
 if [ -e "${FILE}" ]
 then
@@ -29,12 +48,13 @@ cleanup()
 }
 trap cleanup EXIT
 
+
 STATUS=$(curl \
     --silent \
     --location \
     --write-out "%{http_code}" \
     --output "${DOWNLOAD}" \
-    "${URL}")
+    "${URL}&suffix=tar.gz${URL_ARG}" || true)
 
 if [ "${STATUS}" -ne 200 ]
 then
