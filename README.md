@@ -39,7 +39,7 @@ You will need a license key issued by MaxMind.  To do that:
 Copy the GeoASN2 directory into `$SPLUNK_HOME/etc/apps`.
 
 In the copy, create a file in the `etc` directory called
-`maxmind-license` containing your license key.
+`maxmind-key` containing your license key.
 
 In the top-level directory of the copy, run `make` to set up the
 add-on and update the data.
