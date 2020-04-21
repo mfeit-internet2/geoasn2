@@ -7,7 +7,7 @@ from MaxMind and ASN data from the RIRS and
 intended as a near-drop-in replacement for GeoASN by Heinrik Strom at
 Telenor.
 
-The following commands are provided
+The following commands are provided:
 
 
 | Command       | Input(s)       | Outputs  |
@@ -18,6 +18,8 @@ The following commands are provided
 | geo2          | clientip       | client_country client_region client_city client_lat client_lon |
 | geoasn2       | src_ip dest_ip | src_country dest_country src_asn src_as src_org dest_asn dest_as dest_org |
 
+Input can be any set of fields as long as they include those listed.
+
 
 ## Installation
 
@@ -26,6 +28,12 @@ add-on:
 
  * Python version 2.6 or later.  (These programs should run under Python 3 as well but have not been tested.)
  * The GeoIP2 API for Python and all of its prerequisites.  On Linux distributions derived from Red Hat, this is available in the EPEL repo as python2-geoip2.
+
+**NOTE:** These are requirements for the _system_ Python, not the one
+built into Splunk.  The `geoip2` module on some systems doesn't get
+along well with Splunk's Python, so this version uses a wrapper to
+force the issue.
+
 
 You will need a license key issued by MaxMind.  To do that:
 
