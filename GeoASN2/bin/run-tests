@@ -1,0 +1,27 @@
+#!/bin/sh
+
+WHEREAMI=$(dirname "$0")
+PROGRAMS="asn2 asnumber ga2 geo2 geoasn2"
+
+
+for PROGRAM in ${PROGRAMS}
+do
+    printf "#\n# %s\n#\n\n" "${PROGRAM}"
+
+    for FILE in ${WHEREAMI}/${PROGRAM}-*.csv
+    do
+	printf "%s:\n\n" $(basename "${FILE}")
+	"${WHEREAMI}/${PROGRAM}" < "${FILE}"
+	printf "\n"
+    done
+done
+
+
+exit 0
+
+	do \
+		echo ; \
+		echo "$${PROGRAM}" ; \
+		echo ; \
+		"./$${PROGRAM}" < "./$${PROGRAM}.csv" ; \
+	done

@@ -24,40 +24,75 @@ asn_db = geoip2.database.Reader(db_path("ASN"))
 csv_in = csv.reader(sys.stdin)
 csv_out = csv.writer(sys.stdout)
 
-# The first line is always the header.  Pick it apart and figure out
-# where the fields we want live.
+
+# The first line is always the header.  Read that and generate tuples
+# for source and destination IP and ASN.
 
 header = csv_in.next()
-field_index = dict((name, pos) for pos, name in enumerate(header))
 
-index_ip = field_index["ip"]
-index_asn = field_index["asn"]
-index_country = field_index["country"]
-index_org = field_index["org"]
+#
+# Fields from the input.  These are required in this order
+#
 
-# Write the file, header line first.
+in_fields = [
+        "ip"
+]
 
-csv_out.writerow(header)
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
+
+try:
+    index_ip_in = in_field_index["ip"]
+except KeyError:
+    sys.stderr.write("Input is missing ip\n")
+    exit(1)
+
+
+#
+# Fields in the output.
+#
+
+out_fields = [
+    "ip",
+    "country",
+    "asn",
+    "org"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+
+# Spit out the header line
+csv_out.writerow(out_fields)
+
+index_ip_out = out_field_index["ip"]
+index_country_out = out_field_index["country"]
+index_asn_out = out_field_index["asn"]
+index_org_out = out_field_index["org"]
 
 for line in csv_in:
 
+    out = [""] * len(out_fields)
+
+    ip = line[index_ip_in]
+    out[out_field_index["ip"]] = ip
+
     try:
-
-        ip = line[index_ip]
-
         city_response = city_db.city(ip)
-        line[index_country] = city_response.country.iso_code
+        out[index_country_out] = city_response.country.iso_code
+    except (KeyError, geoip2.errors.AddressNotFoundError):
+        # Not there, don't care.
+        pass
 
+    try:
         asn_response = asn_db.asn(ip)
-        line[index_asn] = asn_response.autonomous_system_number
+        out[index_asn_out] = asn_response.autonomous_system_number
         try:
-            line[index_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+            out[index_org_out] = asn_response.autonomous_system_organization.encode("ascii", "replace")
         except AttributeError:
             pass
-
     except (KeyError, geoip2.errors.AddressNotFoundError):
         # Not there, don't care.
         pass
 
     # Write the row back no matter how it turned out.
-    csv_out.writerow(line)
+    csv_out.writerow(out)

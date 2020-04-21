@@ -30,33 +30,60 @@ csv_out = csv.writer(sys.stdout)
 # for source and destination IP and ASN.
 
 header = csv_in.next()
-field_index = dict((name, pos) for pos, name in enumerate(header))
 
-pairs = []
-for pair in [ "src", "dest" ]:
-    try:
-        pairs.append( tuple([
-            field_index[pair + item] for item in "_ip", "_asn"
-        ]) )
-    except KeyError:
-        # TODO: Burp out an error or die?
-        pass
+#
+# Fields from the input.  These are required in this order
+#
+
+in_fields = [
+        "src_ip",
+        "dest_ip"
+]
+
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
+
+try:
+    index_src_ip_in = in_field_index["src_ip"]
+    index_dest_ip_in = in_field_index["dest_ip"]
+except KeyError:
+    sys.stderr.write("Input is missing src_ip or dest_ip\n")
+    exit(1)
 
 
-# Write the file, header line first.
+#
+# Fields in the output.
+#
 
-csv_out.writerow(header)
+out_fields = [
+    "src_ip",
+    "dest_ip",
+    "src_asn",
+    "dest_asn"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+
+# Spit out the header line
+csv_out.writerow(out_fields)
 
 for line in csv_in:
 
-    for pair in pairs:
-        try:
-            ip_index, asn_index = pair
-            response = db.asn(line[ip_index])
-            line[asn_index] = response.autonomous_system_number
-        except geoip2.errors.AddressNotFoundError:
-            # Not there, don't care.
-            pass
+        out = [""] * len(out_fields)
 
-    # Write the row back no matter how it turned out.
-    csv_out.writerow(line)
+        for pair in [ "src", "dest" ]:
+
+            ip_name = pair + "_ip"
+            ip_index = in_field_index[ip_name]
+            ip = line[ip_index]
+
+            out[out_field_index[ip_name]] = ip
+            try:
+                response = db.asn(ip)
+                out[out_field_index[pair + "_asn"]] = response.autonomous_system_number
+            except geoip2.errors.AddressNotFoundError:
+                # Not there, don't care.
+                pass
+
+        # Write the row back no matter how it turned out.
+        csv_out.writerow(out)

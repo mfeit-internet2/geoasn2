@@ -8,14 +8,8 @@ default:
 
 PROGRAMS=asn2 asnumber ga2 geo2 geoasn2
 
-test:
-	for PROGRAM in $(PROGRAMS) ; \
-	do \
-		echo ; \
-		echo "$${PROGRAM}" ; \
-		echo ; \
-		"./$${PROGRAM}" < "./$${PROGRAM}.csv" ; \
-	done
+test: run-tests
+	./run-tests | ([ -t 1 ] && less || cat)
 
 
 clean:

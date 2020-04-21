@@ -28,61 +28,87 @@ csv_out = csv.writer(sys.stdout)
 # where the fields we want live.
 
 header = csv_in.next()
-field_index = dict((name, pos) for pos, name in enumerate(header))
 
-index_src_ip = field_index["src_ip"]
-index_src_as = field_index["src_as"]
-index_src_asn = field_index["src_asn"]
-index_src_org = field_index["src_org"]
-index_src_country = field_index["src_country"]
+#
+# Fields from the input.  These are required in this order
+#
 
-index_dest_ip = field_index["dest_ip"]
-index_dest_as = field_index["dest_as"]
-index_dest_asn = field_index["dest_asn"]
-index_dest_org = field_index["dest_org"]
-index_dest_country = field_index["dest_country"]
+in_fields = [
+        "src_ip",
+        "dest_ip"
+]
 
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
 
-# Write the file, header line first.
+try:
+    index_src_ip_in = in_field_index["src_ip"]
+    index_dest_ip_in = in_field_index["dest_ip"]
+except KeyError:
+    sys.stderr.write("Input is missing src_ip or dest_ip\n")
+    exit(1)
 
-csv_out.writerow(header)
+#
+# Fields in the output.
+#
+
+out_fields = [
+    "src_ip",
+    "dest_ip",
+    "src_country",
+    "dest_country",
+    "src_asn",
+    "src_as",
+    "src_org",
+    "dest_asn",
+    "dest_as",
+    "dest_org"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+# Spit out the header line
+csv_out.writerow(out_fields)
+
 
 for line in csv_in:
 
     try:
 
-	src_ip = line[index_src_ip]
+        out = [""] * len(out_fields)
+
+        src_ip = line[index_src_ip_in]
+        dest_ip = line[index_dest_ip_in]
+
+        out[out_field_index["src_ip"]] = src_ip
+        out[out_field_index["dest_ip"]] = dest_ip
 
         asn_response = asn_db.asn(src_ip)
+        country_response = country_db.country(src_ip)
+
         asn = asn_response.autonomous_system_number
-        line[index_src_as] = "AS{0}".format(asn)
-        line[index_src_asn] = asn
+        out[out_field_index["src_asn"]] = asn
+        out[out_field_index["src_as"]] = "AS{0}".format(asn)
         try:
-            line[index_src_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+            out[out_field_index["src_org"]] = asn_response.autonomous_system_organization.encode("ascii", "replace")
         except AttributeError:
             pass
-
-        country_response = country_db.country(src_ip)
-        line[index_src_country] = country_response.country.iso_code
-
-	dest_ip = line[index_dest_ip]
+        out[out_field_index["src_country"]] = country_response.country.iso_code
 
         asn_response = asn_db.asn(dest_ip)
+        country_response = country_db.country(dest_ip)
+
         asn = asn_response.autonomous_system_number
-        line[index_dest_as] = "AS{0}".format(asn)
-        line[index_dest_asn] = asn
+        out[out_field_index["dest_asn"]] = asn
+        out[out_field_index["dest_as"]] = "AS{0}".format(asn)
         try:
-            line[index_dest_org] = asn_response.autonomous_system_organization.encode("ascii", "replace")
+            out[out_field_index["dest_org"]] = asn_response.autonomous_system_organization.encode("ascii", "replace")
         except AttributeError:
             pass
-
-        country_response = country_db.country(dest_ip)
-        line[index_dest_country] = country_response.country.iso_code
-
+        out[out_field_index["dest_country"]] = country_response.country.iso_code
 
     except (KeyError, geoip2.errors.AddressNotFoundError):
         # Not there, don't care.
         pass
 
     # Write the row back no matter how it turned out.
-    csv_out.writerow(line)
+    csv_out.writerow(out)

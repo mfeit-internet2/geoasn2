@@ -22,43 +22,88 @@ city_db = geoip2.database.Reader(db_path("City"))
 csv_in = csv.reader(sys.stdin)
 csv_out = csv.writer(sys.stdout)
 
-# The first line is always the header.  Pick it apart and figure out
-# where the fields we want live.
 
+# The first line is always the header.
 header = csv_in.next()
-field_index = dict((name, pos) for pos, name in enumerate(header))
 
-index_ip = field_index["clientip"]
-index_country = field_index["client_country"]
-index_region = field_index["client_region"]
-index_city = field_index["client_city"]
-index_lat = field_index["client_lat"]
-index_lon = field_index["client_lon"]
+#
+# Fields from the input.  These are required in this order
+#
+
+in_fields = [
+        "clientip"
+]
+
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
+
+try:
+    index_ip_in = in_field_index["clientip"]
+except KeyError:
+    sys.stderr.write("Input is missing clientip\n")
+    exit(1)
 
 
-# Write the file, header line first.
+#
+# Fields in the output.
+#
 
-csv_out.writerow(header)
+out_fields = [
+    "clientip",
+    "client_country",
+    "client_region",
+    "client_city",
+    "client_lat",
+    "client_lon"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+
+# Spit out the header line
+csv_out.writerow(out_fields)
+
+
+index_ip_in = in_field_index["clientip"]
+
+index_ip_out = out_field_index["clientip"]
+index_client_country_out = out_field_index["client_country"]
+index_client_region_out = out_field_index["client_region"]
+index_client_city_out = out_field_index["client_city"]
+index_client_lat_out = out_field_index["client_lat"]
+index_client_lon_out = out_field_index["client_lon"]
 
 for line in csv_in:
 
-    try:
+    out = [""] * len(out_fields)
 
-        ip = line[index_ip]
+    ip = line[index_ip_in]
+    out[out_field_index["clientip"]] = ip
+
+    try:
 
         city_response = city_db.city(ip)
 
-        line[index_country] = city_response.country.iso_code
+        out[index_client_country_out] = city_response.country.iso_code
+
         try:
-            line[index_city] = city_response.city.names["en"].encode("ascii", "replace") #pylint: disable=no-member
+            out[index_client_region_out] = city_response.subdivisions.most_specific.name
         except AttributeError:
             pass
-        line[index_lat] = city_response.location.latitude    #pylint: disable=no-member
-        line[index_lon] = city_response.location.longitude   #pylint: disable=no-member
 
-    except (KeyError, IndexError, geoip2.errors.AddressNotFoundError):
+        try:
+            out[index_client_city_out] = city_response.city.name.encode("ascii", "replace")
+        except AttributeError:
+            pass
+
+        try:
+            out[index_client_lat_out] = city_response.location.latitude
+            out[index_client_lon_out] = city_response.location.longitude
+        except AttributeError:
+            pass
+
+    except (geoip2.errors.AddressNotFoundError):
         # Not there, don't care.
         pass
 
     # Write the row back no matter how it turned out.
-    csv_out.writerow(line)
+    csv_out.writerow(out)
