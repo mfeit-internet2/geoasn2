@@ -1,1 +1,89 @@
-wrapper
+#!/usr/bin/python
+#
+# GeoIP2 ASN lookup for Splunk
+#
+#
+# Input:  src_ip dest_ip      
+# Output: src_asn dest_asn
+#
+
+import csv
+import os
+import sys
+
+import geoip2.database
+
+DATA_SET = "ASN"
+
+def db_path(dataset):
+    return "{0}/../data/maxmind/GeoLite2-{1}.mmdb".format(
+    os.path.dirname(sys.argv[0]), dataset)
+
+DB_PATH = db_path(DATA_SET)
+
+db = geoip2.database.Reader(DB_PATH)
+
+csv_in = csv.reader(sys.stdin)
+csv_out = csv.writer(sys.stdout)
+
+# The first line is always the header.  Read that and generate tuples
+# for source and destination IP and ASN.
+
+header = csv_in.next()
+
+#
+# Fields from the input.  These are required in this order
+#
+
+in_fields = [
+        "src_ip",
+        "dest_ip"
+]
+
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
+
+try:
+    index_src_ip_in = in_field_index["src_ip"]
+    index_dest_ip_in = in_field_index["dest_ip"]
+except KeyError:
+    sys.stderr.write("Input is missing src_ip or dest_ip\n")
+    exit(1)
+
+
+#
+# Fields in the output.
+#
+
+out_fields = [
+    "src_ip",
+    "dest_ip",
+    "src_asn",
+    "dest_asn"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+
+# Spit out the header line
+csv_out.writerow(out_fields)
+
+for line in csv_in:
+
+        out = [""] * len(out_fields)
+
+        for pair in [ "src", "dest" ]:
+
+            ip_name = pair + "_ip"
+            ip_index = in_field_index[ip_name]
+            ip = line[ip_index]
+
+            out[out_field_index[ip_name]] = ip
+            try:
+                response = db.asn(ip)
+                out[out_field_index[pair + "_asn"]] = response.autonomous_system_number
+            except geoip2.errors.AddressNotFoundError:
+                # Not there, don't care.
+                pass
+
+        # Write the row back no matter how it turned out.
+        csv_out.writerow(out)
