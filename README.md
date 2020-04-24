@@ -30,9 +30,9 @@ add-on:
  * The GeoIP2 API for Python and all of its prerequisites.  On Linux distributions derived from Red Hat, this is available in the EPEL repo as python2-geoip2.
 
 **NOTE:** These are requirements for the _system_ Python, not the one
-built into Splunk.  The `geoip2` module on some systems doesn't get
-along well with Splunk's Python, so this version uses a wrapper to
-force the issue.
+built into Splunk.  There is a temporary hack in place to make this
+plugin play nicely with Splunk at the author's site by using the
+system's Python instead of Splunk's.
 
 
 You will need a license key issued by MaxMind.  To do that:

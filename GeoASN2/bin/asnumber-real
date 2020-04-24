@@ -1,0 +1,122 @@
+#!/usr/bin/python
+#
+# GeoIP2 ASN lookup for Splunk
+#
+#
+# Input:  asn
+# Output: rir country org
+#
+
+import csv
+import os
+import sqlite3
+import sys
+
+# Splunk makes this directory the CWD before calling the script.
+DB_PATH = "{0}/../data/rir/asnumber.sqlite".format(os.path.dirname(sys.argv[0]) or ".")
+
+db = sqlite3.connect(DB_PATH)
+db.text_factory = bytes
+
+cursor = db.cursor()
+
+csv_in = csv.reader(sys.stdin)
+csv_out = csv.writer(sys.stdout)
+
+
+#
+# Fields from the input.  These are required in this order
+#
+
+in_fields = [
+        "asn"
+]
+
+header = csv_in.next()
+
+in_field_index = dict((name, pos) for pos, name in enumerate(header))
+
+try:
+    index_asn_in = in_field_index["asn"]
+except KeyError:
+    sys.stderr.write("Input is missing asn\n")
+    exit(1)
+
+
+#
+# Fields in the output.
+#
+
+out_fields = [
+    "asn",
+    "rir",
+    "country",
+    "org"
+]
+
+out_field_index = dict((name, pos) for pos, name in enumerate(out_fields))
+
+# Spit out the header line
+csv_out.writerow(out_fields)
+
+
+
+#
+# Private ASN ranges Per RFC 6996
+#
+private_asns = [
+	     (64512, 65534),
+	     (4200000000,4294967294)
+	     ]
+
+def asn_is_private(asn):
+    asn = int(asn)
+    for asrange in private_asns:
+        (lower, upper) = asrange
+        if asn >= lower and asn <= upper:
+            return True
+    return False
+
+
+
+for line in csv_in:
+
+    try:
+
+        out = [""] * len(out_fields)
+
+        asn = line[in_field_index["asn"]]
+
+        out[out_field_index["asn"]] = asn
+
+        if asn_is_private(asn):
+
+            rir = "iana"
+            country = ""
+            org = "Private AS%s" % (asn)
+
+        else:
+
+            cursor.execute(
+                "SELECT rir, country, org FROM asinfo WHERE asn = ?",
+                (asn,)
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                # Skip it.  Didn't find anything
+                raise IndexError
+
+            (rir, country, org) = row
+
+    except IndexError:
+        # Not there, don't care.
+        pass
+
+    out[out_field_index["rir"]] = rir
+    out[out_field_index["country"]] = country
+    out[out_field_index["org"]] = org
+
+    # Write the row back no matter how it turned out.
+    csv_out.writerow(out)

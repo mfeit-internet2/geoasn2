@@ -1,0 +1,9 @@
+#!/usr/bin/python
+#
+# Run the "real" version of a program.
+#
+
+import os
+import sys
+
+os.execv(sys.argv[0] + "-real", sys.argv)
