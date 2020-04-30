@@ -1,6 +1,7 @@
 #!/bin/sh
 
 WHEREAMI=$(dirname "$0")
+TEST_DATA="${WHEREAMI}/test-data"
 PROGRAMS="asn2 asnumber ga2 geo2 geoasn2"
 
 
@@ -8,7 +9,7 @@ for PROGRAM in ${PROGRAMS}
 do
     printf "#\n# %s\n#\n\n" "${PROGRAM}"
 
-    for FILE in ${WHEREAMI}/${PROGRAM}-*.csv
+    for FILE in ${TEST_DATA}/${PROGRAM}-*.csv
     do
 	printf "%s:\n\n" $(basename "${FILE}")
 	"${WHEREAMI}/${PROGRAM}" < "${FILE}"
