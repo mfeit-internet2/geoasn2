@@ -15,7 +15,7 @@ import syslog
 import geoip2.database
 
 def db_path(dataset):
-    return "{0}/../data/maxmind/GeoLite2-{1}.mmdb".format(
+    return "{0}/data/GeoLite2-{1}.mmdb".format(
     os.path.dirname(sys.argv[0]), dataset)
 
 

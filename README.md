@@ -83,6 +83,10 @@ ip,country,asn,org
 200.148.108.124,Brazil,27699,DE SAO PAULO S/A - TELESP
 203.129.108.100,Japan,10000,Nagasaki Cable Media Inc.
 ```
+
+Note that there are a couple of items in the input that are erroneous.
+These exist to make sure the programs behave gracefully and should be
+pretty obvious.  Ignore any warnings about invalid data.
   
 
 ## Example Searches
