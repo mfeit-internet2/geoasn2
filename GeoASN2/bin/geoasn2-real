@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # GeoIP2 Country/ASN/Organization lookup for Splunk
 #
@@ -44,7 +44,7 @@ csv_out = csv.writer(sys.stdout)
 # The first line is always the header.  Pick it apart and figure out
 # where the fields we want live.
 
-header = csv_in.next()
+header = next(csv_in)
 
 #
 # Fields from the input.  These are required in this order

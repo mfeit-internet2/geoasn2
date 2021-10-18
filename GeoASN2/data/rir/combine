@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # RIR/MaxMind Data Combiner
 # Input:  ip
@@ -35,4 +35,4 @@ for line in rir_in:
 # Anything left in asn_org was missing RIR data
 
 for orphan in asn_org:
-    print "%s|||%s" % (orphan, asn_org[orphan])
+    print("%s|||%s" % (orphan, asn_org[orphan]))
